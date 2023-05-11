@@ -10,32 +10,26 @@ impl Heap {
 pub fn heap_sort(elems: &mut [u64]) {
     let n = elems.len();
     if n <= 1 { return; } // (might be interesting to remove this condition and see what breaks
-    let mut record = elems[0];
-    let mut l = n/2 + 1;
-    let mut r = n;
     let siftup = |elems: &mut [u64], record, l, r| {
-        let mut j = l;
+        let mut j = l+1;
         loop {
-            let i = j;
+            let i = j-1;
             j = 2*j;
-            if j > r { elems[i-1] = record; return; }
+            if j > r { elems[i] = record; return; }
             if j < r { if elems[j-1] < elems[j] { j = j + 1; } }
             if record >= elems[j-1] { elems[i] = record; return; }
-            elems[i-1] = elems[j-1];
+            elems[i] = elems[j-1];
         }
     };
-    while l > 1 {
-        l -= 1;
-        record = elems[l-1];
-        siftup(elems, record, l, r);
+    for l in (0..(n/2)).rev() {
+        siftup(elems, elems[l], l, n);
     }
-    while r > 1 {
-        record = elems[r-1];
-        elems[r-1] = elems[0];
-        r -= 1;
-        siftup(elems, record, l, r);
+    for r in (1..n).rev() {
+        let record = elems[r];
+        elems[r] = elems[0];
+        siftup(elems, record, 0, r);
+        if r == 1 { elems[0] = record; }
     }
-    elems[0] = record;
 }
 
 fn fun_sort(input: &[u64]) -> Vec<u64> {
@@ -44,8 +38,46 @@ fn fun_sort(input: &[u64]) -> Vec<u64> {
     v
 }
 
-#[test]
-fn heap_sort_basics() {
-    assert_eq!(fun_sort(&[1, 3, 5, 7]), vec![1, 3, 5, 7]);
-    assert_eq!(fun_sort(&[1, 5, 3, 7]), vec![1, 3, 5, 7]);
+macro_rules! instance {
+    ($name:ident, $input:expr) => {
+        #[test]
+        fn $name() {
+            assert_eq!(fun_sort(& $input), vec![1, 3, 5, 7]);
+        }
+    }
+}
+
+#[cfg(test)]
+mod heap_sort_basics {
+    use super::fun_sort;
+
+    instance!(i1357, [1, 3, 5, 7]);
+    instance!(i3157, [3, 1, 5, 7]);
+    instance!(i3517, [3, 5, 1, 7]);
+    instance!(i3571, [3, 5, 7, 1]);
+
+    instance!(i1537, [1, 5, 3, 7]);
+    instance!(i5137, [5, 1, 3, 7]);
+    instance!(i5317, [5, 3, 1, 7]);
+    instance!(i5371, [5, 3, 7, 1]);
+
+    instance!(i1573, [1, 5, 7, 3]);
+    instance!(i5173, [5, 1, 7, 3]);
+    instance!(i5713, [5, 7, 1, 3]);
+    instance!(i5731, [5, 7, 3, 1]);
+
+    instance!(i1375, [1, 3, 7, 5]);
+    instance!(i3175, [3, 1, 7, 5]);
+    instance!(i3715, [3, 7, 1, 5]);
+    instance!(i3751, [3, 7, 5, 1]);
+
+    instance!(i1735, [1, 7, 3, 5]);
+    instance!(i7135, [7, 1, 3, 5]);
+    instance!(i7315, [7, 3, 1, 5]);
+    instance!(i7351, [7, 3, 5, 1]);
+
+    instance!(i1753, [1, 7, 5, 3]);
+    instance!(i7153, [7, 1, 5, 3]);
+    instance!(i7513, [7, 5, 1, 3]);
+    instance!(i7531, [7, 5, 3, 1]);
 }
