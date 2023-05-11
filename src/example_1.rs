@@ -14,7 +14,7 @@ fn search(key: u64, elems: &[u64]) -> Result<Idx, Idx>
         if below == limit { return Err(below); }
         assert!(below < limit);
         let mid = below + (limit - below) / 2;
-        assert!(0 <= mid && (mid as usize) < elems.len());
+        assert!((mid as usize) < elems.len());
         let elem = elems[mid as usize];
         if elem == key { return Ok(mid); }
         if elem < key { below = mid+1; }
