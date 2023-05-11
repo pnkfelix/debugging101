@@ -1,4 +1,4 @@
-type Idx = u8;
+pub type Idx = u8;
 
 // Given K and sorted array [a_0, a_1, ... a_n],
 // If returns Ok(i), then exists some i such that a_i == K.
@@ -6,7 +6,7 @@ type Idx = u8;
 //    i < j ==> a_i < K and j <= k ==> K < a_k.
 // (i.e., j is the point you would insert K if all a_k were
 // first shifted to the right one slot.)
-fn search(key: u64, elems: &[u64]) -> Result<Idx, Idx>
+pub fn search(key: u64, elems: &[u64]) -> Result<Idx, Idx>
 {
     let mut below: Idx = 0;
     let mut limit: Idx = elems.len() as Idx;

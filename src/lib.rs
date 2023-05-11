@@ -1,2 +1,2 @@
-mod example_1;
-mod example_2;
+pub mod example_1;
+pub mod example_2;
