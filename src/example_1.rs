@@ -11,14 +11,14 @@ fn search(key: u64, elems: &[u64]) -> Result<Idx, Idx>
     let mut below: Idx = 0;
     let mut limit: Idx = elems.len() as Idx;
     loop {
-	if below == limit { return Err(below); }
-	assert!(below < limit);
-	let mid = below + (limit - below) / 2;
-	assert!(0 <= mid && (mid as usize) < elems.len());
-	let elem = elems[mid as usize];
-	if elem == key { return Ok(mid); }
-	if elem < key { below = mid+1; }
-	else { assert!(key < elem); limit = mid; }
+        if below == limit { return Err(below); }
+        assert!(below < limit);
+        let mid = below + (limit - below) / 2;
+        assert!(0 <= mid && (mid as usize) < elems.len());
+        let elem = elems[mid as usize];
+        if elem == key { return Ok(mid); }
+        if elem < key { below = mid+1; }
+        else { assert!(key < elem); limit = mid; }
     }
 }
 
