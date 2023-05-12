@@ -109,6 +109,7 @@ pub fn heap_sort_taocp(elems: &mut [u64]) {
     }
 }
 
+#[cfg(test)]
 fn fun_sort(input: &[u64]) -> Vec<u64> {
     let mut v: Vec<_> = input.iter().map(|e|*e).collect();
     heap_sort(&mut v);
@@ -137,7 +138,7 @@ mod heap_sort_bigger {
     }
 }
 
-
+#[cfg(test)]
 macro_rules! instance {
     ($name:ident, $input:expr) => {
         #[test]
