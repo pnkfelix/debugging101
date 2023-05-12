@@ -3,22 +3,99 @@ pub struct Heap(Vec<u64>);
 // Let h(j) = \floor{j/2}
 // Invariant: K_1, K_2, ... K_n is a heap if:
 //     K_h(j) >= K_j for 1 <= h(j) < j <= N
+//
+// aka
+//     K_{2i} <= K_i && K_{2i+1} <= K_i for 1 <= i < 2i+1 <= N
 impl Heap {
     
 }
 
+pub fn heap_check(elems: &mut [u64], heap_len: usize) {
+    assert!(heap_len <= elems.len());
+    for j in 0..heap_len {
+        assert!(elems[j/2] >= elems[j]);
+    }
+}
+
 pub fn heap_sort(elems: &mut [u64]) {
+    for i in 0..elems.len() {
+        heap_insert(elems, i, elems[i]);
+    }
+    heap_check(elems, elems.len());
+    for i in (0..elems.len()).rev() {
+        let val = heap_pop(elems, i+1);
+        heap_check(elems, i);
+        elems[i] = val;
+    }
+}
+
+pub fn heap_insert(elems: &mut [u64], heap_len: usize, new_elem: u64) {
+    heap_check(elems, heap_len);
+    assert!(heap_len < elems.len());
+    elems[heap_len] = new_elem;
+    let mut j = heap_len;
+    while j > 0 {
+        let i = j / 2;
+        if elems[j] > elems[i] {
+            elems.swap(j, i);
+        }
+        j = i;
+    }
+    heap_check(elems, heap_len + 1);
+}
+
+pub fn heap_pop(elems: &mut [u64], heap_len: usize) -> u64 {
+    heap_check(elems, heap_len);
+    assert!(heap_len > 0, "{heap_len} > 0");
+    let ret_val = elems[0];
+    let mut i = 0;
+    loop {
+        let lft = 2*(i+1)-1;
+        let rgt = 2*(i+1);
+        if rgt < heap_len {
+            // both children are available. Move the larger into the gap (to
+            // maintain the heap invariant) and then recur on that new gap.
+            if elems[lft] > elems[rgt] {
+                elems[i] = elems[lft];
+                i = lft;
+            } else {
+                elems[i] = elems[rgt];
+                i = rgt;
+            }
+        } else if lft < heap_len {
+            // only the left is available. move it into the gap.
+            elems[i] = elems[lft];
+            assert_eq!(lft, heap_len-1);
+            break;
+        } else {
+            // no children available. `i` must be the final gap.
+            break;
+        }
+    }
+    heap_check(elems, heap_len - 1);
+    return ret_val;
+}
+
+pub fn heap_sort_taocp(elems: &mut [u64]) {
     let n = elems.len();
-    if n <= 1 { return; } // (might be interesting to remove this condition and see what breaks
+    if n <= 1 { return; }
     let siftup = |elems: &mut [u64], record, l, r| {
-        let mut j = l+1;
+        let mut j = l;
         loop {
-            let i = j-1;
-            j = 2*j;
-            if j > r { elems[i] = record; return; }
-            if j < r { if elems[j-1] < elems[j] { j = j + 1; } }
-            if record >= elems[j-1] { elems[i] = record; return; }
-            elems[i] = elems[j-1];
+            let i = j;
+            j = 2*(j+1)-1;
+            if j > r-1 {
+                elems[i] = record;
+                return;
+            }
+            if j < r-1 {
+                if elems[j] < elems[j+1] { j = j + 1; }
+            }
+            if record >= elems[j] {
+                elems[i] = record;
+                return;
+            }
+            elems[i] = elems[j];
         }
     };
     for l in (0..(n/2)).rev() {
@@ -28,7 +105,7 @@ pub fn heap_sort(elems: &mut [u64]) {
         let record = elems[r];
         elems[r] = elems[0];
         siftup(elems, record, 0, r);
-        if r == 1 { elems[0] = record; }
+        // if r == 1 { elems[0] = record; }
     }
 }
 
@@ -37,6 +114,29 @@ fn fun_sort(input: &[u64]) -> Vec<u64> {
     heap_sort(&mut v);
     v
 }
+
+#[cfg(test)]
+mod heap_sort_bigger {
+    use super::fun_sort;
+    #[test]
+    fn bigger_2() {
+        assert_eq!(fun_sort(&[15,10]),
+                   vec![10,15]);
+    }
+    #[test]
+    fn bigger_5() {
+        assert_eq!(fun_sort(&[10,20,30,40,15]),
+                   vec![10,15,20,30,40]);
+    }
+    #[test]
+    fn bigger() {
+        assert_eq!(fun_sort(&[10,20,30,40,15,
+                              50,60,70,80,90]),
+                   vec![10,15,20,30,40,
+                        50,60,70,80,90]);
+    }
+}
+
 
 macro_rules! instance {
     ($name:ident, $input:expr) => {
