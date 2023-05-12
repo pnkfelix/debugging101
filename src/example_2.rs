@@ -50,7 +50,7 @@ pub fn heap_pop(elems: &mut [u64], heap_len: usize) -> u64 {
     assert!(heap_len > 0, "{heap_len} > 0");
     let ret_val = elems[0];
     if heap_len == 1 { return ret_val; }
-    let mut moving = elems[heap_len-1];
+    let moving = elems[heap_len-1];
     let mut i = 0;
     loop {
         let lft = 2*(i+1)-1;
