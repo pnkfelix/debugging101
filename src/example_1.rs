@@ -13,8 +13,8 @@ pub fn search(key: u64, elems: &[u64]) -> Result<FoundAt, Unfound>
     let mut limit = elems.len();
     loop {
         assert!(below <= limit);
-        if below == limit { return Err(Unfound { insert_at: below }); }
         let mid = (limit + below) / 2;
+        if below == limit { return Err(Unfound { insert_at: below }); }
         let elem = elems[mid];
         if elem == key { return Ok(FoundAt(mid)); }
         if elem < key {
