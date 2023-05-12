@@ -12,8 +12,9 @@ impl Heap {
 
 pub fn heap_check(elems: &mut [u64], heap_len: usize) {
     assert!(heap_len <= elems.len());
-    for j in 0..heap_len {
-        assert!(elems[j/2] >= elems[j]);
+    for j in 2..heap_len {
+        let parent = j/2;
+        assert!(elems[parent-1] >= elems[j-1], "{:?} broken at {} v {}", &elems[0..heap_len], parent, j);
     }
 }
 
@@ -48,27 +49,39 @@ pub fn heap_pop(elems: &mut [u64], heap_len: usize) -> u64 {
     heap_check(elems, heap_len);
     assert!(heap_len > 0, "{heap_len} > 0");
     let ret_val = elems[0];
+    if heap_len == 1 { return ret_val; }
+    let mut moving = elems[heap_len-1];
     let mut i = 0;
     loop {
         let lft = 2*(i+1)-1;
         let rgt = 2*(i+1);
         if rgt < heap_len {
-            // both children are available. Move the larger into the gap (to
-            // maintain the heap invariant) and then recur on that new gap.
-            if elems[lft] > elems[rgt] {
+            // both children are available.
+            // which is larger?
+            let j = if elems[lft] > elems[rgt] { lft } else { rgt };
+            if elems[j] > moving {
+                // Move the larger into the gap (to maintain the heap invariant)
+                // and then recur on that new gap.
+                elems[i] = elems[j];
+                i = j;
+            } else {
+                // we found the final location!
+                elems[i] = moving;
+                break;
+            }
+        } else if lft < heap_len {
+            assert_eq!(lft, heap_len-1);
+            // only the left is available.
+            if elems[lft] > moving {
                 elems[i] = elems[lft];
                 i = lft;
             } else {
-                elems[i] = elems[rgt];
-                i = rgt;
+                elems[i] = moving;
+                break;
             }
-        } else if lft < heap_len {
-            // only the left is available. move it into the gap.
-            elems[i] = elems[lft];
-            assert_eq!(lft, heap_len-1);
-            break;
         } else {
             // no children available. `i` must be the final gap.
+            elems[i] = moving;
             break;
         }
     }
